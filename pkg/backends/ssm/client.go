@@ -18,23 +18,7 @@ type Client struct {
 
 func New() (*Client, error) {
 
-	// Attempt to get AWS Region from ec2metadata. Should determine how to
-	// shorten ec2metadata client timeout so it fails fast if not on EC2.
-	metaSession, _ := session.NewSession()
-	metaClient := ec2metadata.New(metaSession)
-	region, _ := metaClient.Region()
-
-	conf := aws.NewConfig().WithRegion(region)
-
-	// Create a session to share configuration, and load external configuration.
-	sess := session.Must(session.NewSessionWithOptions(
-		session.Options{
-			SharedConfigState: session.SharedConfigEnable,
-			Config:            *conf,
-		},
-	))
-
-	log.Debug(fmt.Sprintf("Region: %s", aws.StringValue(sess.Config.Region)))
+	sess := session.Must(session.NewSession())
 
 	// Fail early, if no credentials can be found
 	_, err := sess.Config.Credentials.Get()
@@ -45,7 +29,7 @@ func New() (*Client, error) {
 	var c *aws.Config
 	if os.Getenv("SSM_LOCAL") != "" {
 		log.Debug("SSM_LOCAL is set")
-		endpoint := os.Getenv("SSM_ENDPOINT_URL")
+		endpoint := "http://localhost:8001"
 		c = &aws.Config{
 			Endpoint: &endpoint,
 		}
@@ -56,6 +40,7 @@ func New() (*Client, error) {
 	// Create the service's client with the session.
 	svc := ssm.New(sess, c)
 	return &Client{svc}, nil
+
 }
 
 // GetValues retrieves the values for the given keys from AWS SSM Parameter Store
