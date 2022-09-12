@@ -1,7 +1,6 @@
 package ssm
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/abtreece/confd/pkg/log"
