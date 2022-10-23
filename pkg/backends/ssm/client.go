@@ -38,7 +38,6 @@ func New() (*Client, error) {
 	// Create the service's client with the session.
 	svc := ssm.New(sess, c)
 	return &Client{svc}, nil
-
 }
 
 // GetValues retrieves the values for the given keys from AWS SSM Parameter Store
